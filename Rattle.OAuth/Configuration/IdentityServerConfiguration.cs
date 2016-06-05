@@ -10,7 +10,7 @@ namespace Rattle.OAuth.Configuration
 {
     public static class IdentityServerConfiguration
     {
-        public static IServiceCollection AddConfiguredIdentityServer(this IServiceCollection serviceCollection, byte[] certificate, string certificatePassword)
+        public static IServiceCollection AddConfiguredIdentityServer(this IServiceCollection serviceCollection, string certificate, string certificatePassword)
         {
             var provider = serviceCollection.BuildServiceProvider();
 

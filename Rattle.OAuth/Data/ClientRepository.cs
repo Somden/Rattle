@@ -19,8 +19,14 @@ namespace Rattle.OAuth.Data
                         new Secret("secret".Sha256())
                     },
                     ClientName = "Web server",
-                    AllowedScopes = StandardScopes.All.Select(s => s.Name).ToList(),
-                    Enabled = true
+                    AllowedScopes = new List<string>
+                    {
+                        StandardScopes.OpenId.Name
+                    },
+                    Enabled = true,
+                    AllowedGrantTypes = new List<string> { "password" },
+                    AllowAccessToAllScopes = true,
+                    AllowAccessTokensViaBrowser = true
                 }
             };
         }

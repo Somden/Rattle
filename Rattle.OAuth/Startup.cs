@@ -25,7 +25,7 @@ namespace Rattle.OAuth
         // Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var certificate = Convert.FromBase64String(Configuration["certificate"]);
+            var certificate = Configuration["certificate"];
             var certificatePassword = Configuration["certificatePassword"];
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
