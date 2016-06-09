@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Rattle.Infrastructure")]
+[assembly: AssemblyTitle("Rattle.Server.Host")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Rattle.Infrastructure")]
+[assembly: AssemblyProduct("Rattle.Server.Host")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("3dfdbb21-631f-40ee-862d-eb34cfcb67ec")]
+[assembly: Guid("58fe4021-90e3-4399-bc1b-b05c915c0509")]
 
 // Version information for an assembly consists of the following four values:
 //
