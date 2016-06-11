@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Bus\ICommandBus.cs" />
     <Compile Include="Bus\IConsumer.cs" />
+    <Compile Include="Bus\IEventBus.cs" />
     <Compile Include="Bus\IPublisher.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandHandler.cs" />
@@ -52,7 +53,9 @@
     <Compile Include="Domain\Exception\MissingParameterLessConstructorException.cs" />
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Events\IEventHandler.cs" />
+    <Compile Include="Messages\IHandlerInvoker.cs" />
     <Compile Include="Messages\IMessage.cs" />
+    <Compile Include="Messages\IMessageSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

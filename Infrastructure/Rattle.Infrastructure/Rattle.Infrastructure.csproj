@@ -50,9 +50,14 @@
   <ItemGroup>
     <Compile Include="CommandBus.cs" />
     <Compile Include="Consumer.cs" />
+    <Compile Include="EventBus.cs" />
+    <Compile Include="HandlerInvoker.cs" />
+    <Compile Include="MessageSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publisher.cs" />
-    <Compile Include="Service.cs" />
+    <Compile Include="Services\Service.cs" />
+    <Compile Include="Services\TopologyStrategies\ITopology.cs" />
+    <Compile Include="Services\TopologyStrategies\QueuePerBusTopology.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -63,6 +68,7 @@
       <Name>Rattle.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

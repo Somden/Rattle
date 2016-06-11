@@ -1,6 +1,7 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Rattle.Core.Bus;
+using Rattle.Core.Messages;
 using System;
 
 namespace Rattle.Infrastructure
@@ -8,12 +9,16 @@ namespace Rattle.Infrastructure
     public class Consumer : IConsumer<BasicDeliverEventArgs>
     {
         private readonly IModel m_channel;
+        private readonly IMessageSerializer m_serializer;
 
 
-        public Consumer(IModel channel)
+
+        public Consumer(IModel channel, IMessageSerializer serializer)
         {
             m_channel = channel;
+            m_serializer = serializer;
         }
+
 
 
         public void Consume(string queue, bool noAck, bool cancelOnReceive, Action<BasicDeliverEventArgs> receiveHandler)

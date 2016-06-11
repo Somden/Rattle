@@ -5,9 +5,8 @@ namespace Rattle.Core.Events
 {
     public interface IEvent : IMessage
     {
-        Guid Id { get; set; }
-        int Version { get; set; }
-        DateTimeOffset TimeStamp { get; set; }
+        Guid Id { get; }
+        int Version { get; }
     }
 }
 

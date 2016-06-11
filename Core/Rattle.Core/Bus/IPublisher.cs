@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rattle.Core.Messages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,10 @@ namespace Rattle.Core.Bus
 {
     public interface IPublisher
     {
-        void Publish<T>(string exchange, string topic, T message);
+        void Publish<T>(string exchange, string topic, T message) where T : IMessage;
 
-        void Publish<T>(string exchange, string topic, T message, string correlationId);
+        void Publish<T>(string exchange, string topic, T message, string correlationId) where T : IMessage;
 
-        void Publish<T>(string exchange, string topic, T message, string correlationId, string replyTo);
+        void Publish<T>(string exchange, string topic, T message, string correlationId, string replyTo) where T : IMessage;
     }
 }
