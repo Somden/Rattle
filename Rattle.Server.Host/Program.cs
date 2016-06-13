@@ -50,12 +50,14 @@ namespace Rattle.Server.Host.Temp
     {
         public TextEvent(string text)
         {
-            this.Id = Guid.NewGuid();
+            this.AggregateId = Guid.NewGuid();
             this.Version = 1;
             this.Text = text;
         }
 
-        public Guid Id { get; private set; }
+        public Guid AggregateId { get; private set; }
+
+        public string AggregateType { get; private set; }
 
         public int Version { get; private set; }
 
@@ -118,16 +120,19 @@ namespace Rattle.Server.Host.Temp
             m_commandBus = new CommandBus(channel, publisher, consumer, serializer);
             m_eventBus = new EventBus(channel, publisher);
 
-            var topology = new QueuePerBusTopology(channel, consumer, serializer);
             var handlerInvoker = new HandlerInvoker();
 
-            var service1 = new Service("service1", topology, channel, publisher, consumer, serializer, handlerInvoker);
+            var topology1 = new QueuePerBusTopology("service1", channel, consumer);
+            var service1 = new Service("service1", topology1, channel, publisher, consumer, serializer, handlerInvoker);
             service1.RegisterCommandHandler(new TextCommandHandler());
             service1.RegisterEventHanlder(new TextEventHandler());
+            service1.Start();
 
-            var service2 = new Service("service2", topology, channel, publisher, consumer, serializer, handlerInvoker);
+            var topology2 = new QueuePerMessageTopology("service2", new[] { typeof(TextCommand).Assembly }, channel, consumer);
+            var service2 = new Service("service2", topology2, channel, publisher, consumer, serializer, handlerInvoker);
             service2.RegisterCommandHandler(new TextCommandHandler());
             service2.RegisterEventHanlder(new TextEventHandler());
+            service2.Start();
         }
 
         private static async void DoWork()

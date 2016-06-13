@@ -18,13 +18,14 @@ namespace Rattle.Infrastructure
             m_channel = channel;
             m_publisher = publisher;
 
-            m_channel.ExchangeDeclare(EXCHANGE_NAME, ExchangeType.Fanout, false);
+            m_channel.ExchangeDeclare(EXCHANGE_NAME, ExchangeType.Topic, true);
         }
 
         
         public void SendEvent<T>(T @event) where T : IEvent
         {
-            m_publisher.Publish(EXCHANGE_NAME, string.Empty, @event);
+            var topic = $"event.{@event.AggregateType}.{@event.GetType().Name}";
+            m_publisher.Publish(EXCHANGE_NAME, topic, @event);
         }
     }
 }

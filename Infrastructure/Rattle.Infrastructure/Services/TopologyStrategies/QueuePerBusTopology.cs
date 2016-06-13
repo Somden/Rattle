@@ -1,37 +1,41 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Rattle.Core.Bus;
-using Rattle.Core.Messages;
 using System;
 
 namespace Rattle.Infrastructure.Services.TopologyStrategies
 {
     public class QueuePerBusTopology : ITopology
     {
+        private readonly string m_serviceName;
+
         private string m_eventsQueue;
         private string m_commandsQueue;
 
         private readonly IModel m_channel;
         private readonly IConsumer<BasicDeliverEventArgs> m_consumer;
-        private readonly IMessageSerializer m_serializer;
 
-        public QueuePerBusTopology(IModel channel, IConsumer<BasicDeliverEventArgs> consumer, IMessageSerializer serializer)
+                
+
+        public QueuePerBusTopology(string serviceName, IModel channel, IConsumer<BasicDeliverEventArgs> consumer)
         {
+            m_serviceName = serviceName;
             m_channel = channel;
             m_consumer = consumer;
-            m_serializer = serializer;
         }
 
-        public ITopology Initialize(string serviceName)
+
+        
+        public ITopology Initialize()
         {
-            m_eventsQueue = $"{serviceName}_events";
-            m_commandsQueue = $"{serviceName}_commands";
+            m_eventsQueue = $"{m_serviceName}.events";
+            m_commandsQueue = $"{m_serviceName}.commands";
 
             m_channel.QueueDeclare(m_eventsQueue, true, false, false, null);
             m_channel.QueueDeclare(m_commandsQueue, true, false, false, null);
 
-            m_channel.QueueBind(m_eventsQueue, EventBus.EXCHANGE_NAME, string.Empty);
-            m_channel.QueueBind(m_commandsQueue, CommandBus.EXCHANGE_NAME, serviceName);
+            m_channel.QueueBind(m_eventsQueue, EventBus.EXCHANGE_NAME, "event.#");
+            m_channel.QueueBind(m_commandsQueue, CommandBus.EXCHANGE_NAME, $"command.{m_serviceName}.*");
 
             return this;
         }

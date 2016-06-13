@@ -22,15 +22,12 @@ namespace Rattle.Infrastructure.Services
         private readonly IHandlerInvoker m_handlerInvoker;
 
         protected readonly string m_name;
-        
-        protected readonly string m_eventsQueue;
 
 
         public Service(string name, ITopology topology, IModel channel, IPublisher publisher,
             IConsumer<BasicDeliverEventArgs> consumer, IMessageSerializer serializer, IHandlerInvoker handlerInvoker)
         {
             m_name = name;
-            m_eventsQueue = $"{m_name}_events";
 
             m_topology = topology;
             m_channel = channel;
@@ -38,13 +35,16 @@ namespace Rattle.Infrastructure.Services
             m_consumer = consumer;
             m_serializer = serializer;
             m_handlerInvoker = handlerInvoker;
-
-            m_topology.Initialize(m_name)
-                      .ListenForCommands(OnCommand)
-                      .ListenForEvents(OnEvent);
         }
 
 
+
+        public void Start()
+        {
+            m_topology.Initialize()
+                      .ListenForCommands(OnCommand)
+                      .ListenForEvents(OnEvent);
+        }
 
         public void RegisterCommandHandler<TCommand>(ICommandHandler<TCommand> handler)
             where TCommand : ICommand

@@ -5,7 +5,8 @@ namespace Rattle.Core.Events
 {
     public interface IEvent : IMessage
     {
-        Guid Id { get; }
+        Guid AggregateId { get; }
+        string AggregateType { get; }
         int Version { get; }
     }
 }

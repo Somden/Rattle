@@ -9,7 +9,7 @@ namespace Rattle.Infrastructure.Services.TopologyStrategies
 {
     public interface ITopology
     {
-        ITopology Initialize(string serviceName);
+        ITopology Initialize();
         ITopology ListenForCommands(Action<BasicDeliverEventArgs> onCommand);
         ITopology ListenForEvents(Action<BasicDeliverEventArgs> onEvent);
     }

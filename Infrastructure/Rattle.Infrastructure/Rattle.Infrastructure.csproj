@@ -58,6 +58,7 @@
     <Compile Include="Services\Service.cs" />
     <Compile Include="Services\TopologyStrategies\ITopology.cs" />
     <Compile Include="Services\TopologyStrategies\QueuePerBusTopology.cs" />
+    <Compile Include="Services\TopologyStrategies\QueuePerMessageTopology.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
