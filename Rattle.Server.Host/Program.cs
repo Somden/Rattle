@@ -7,9 +7,40 @@ using Rattle.Core.Messages;
 using Rattle.Infrastructure.Services;
 using Rattle.Infrastructure.Services.TopologyStrategies;
 using Rattle.Core.Events;
+using Autofac;
+using System.Reflection;
 
 namespace Rattle.Server.Host.Temp
 {
+    #region Service
+
+    class TestService : Service
+    {
+        public TestService(string name, IConnection connection) 
+            : base(name, connection)
+        {
+        }
+
+        protected override Assembly[] ContractsAssemblies => new[] { typeof(TextCommand).Assembly };
+
+        protected override void RegisterDependencies(ContainerBuilder containerBuilder)
+        {
+        }
+
+        protected override void RegisterTopology(ContainerBuilder containerBuilder)
+        {
+            containerBuilder.RegisterType<QueuePerMessageTopology>()
+                            .WithParameter(new NamedParameter("serviceName", m_name))
+                            .WithParameter(new NamedParameter("handlersAssemblies", this.ContractsAssemblies))
+                            .AsImplementedInterfaces()
+                            .AsSelf()
+                            .SingleInstance();
+        }
+    }
+
+    #endregion
+
+
     #region Command
 
     class TextCommand : ICommand
@@ -96,7 +127,7 @@ namespace Rattle.Server.Host.Temp
 
 
 
-        private static void Setup()
+        private async static void Setup()
         {
             var connectionFactory = new ConnectionFactory
             {
@@ -110,29 +141,22 @@ namespace Rattle.Server.Host.Temp
             var connection = connectionFactory.CreateConnection();
             var channel = connection.CreateModel();
 
-
             var serializer = new MessageSerializer();
             serializer.KnownAssemblies.Add(typeof(TextCommand).Assembly);
-
             var publisher = new Publisher(channel, serializer);
             var consumer = new Consumer(channel, serializer);
-
             m_commandBus = new CommandBus(channel, publisher, consumer, serializer);
             m_eventBus = new EventBus(channel, publisher);
 
-            var handlerInvoker = new HandlerInvoker();
-
-            var topology1 = new QueuePerBusTopology("service1", channel, consumer);
-            var service1 = new Service("service1", topology1, channel, publisher, consumer, serializer, handlerInvoker);
+            var service1 = new TestService("service1", connection);
+            await service1.Start();
             service1.RegisterCommandHandler(new TextCommandHandler());
             service1.RegisterEventHanlder(new TextEventHandler());
-            service1.Start();
-
-            var topology2 = new QueuePerMessageTopology("service2", new[] { typeof(TextCommand).Assembly }, channel, consumer);
-            var service2 = new Service("service2", topology2, channel, publisher, consumer, serializer, handlerInvoker);
+            
+            var service2 = new TestService("service2", connection);
+            await service2.Start();
             service2.RegisterCommandHandler(new TextCommandHandler());
             service2.RegisterEventHanlder(new TextEventHandler());
-            service2.Start();
         }
 
         private static async void DoWork()
