@@ -1,12 +1,10 @@
-﻿using Newtonsoft.Json;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Rattle.Core.Bus;
 using Rattle.Core.Commands;
 using Rattle.Core.Messages;
 using System;
 using System.Diagnostics;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Rattle.Infrastructure
@@ -27,7 +25,7 @@ namespace Rattle.Infrastructure
             m_consumer = consumer;
             m_serializer = serializer;
 
-            m_channel.ExchangeDeclare(EXCHANGE_NAME, ExchangeType.Direct, false);
+            m_channel.ExchangeDeclare(EXCHANGE_NAME, ExchangeType.Topic, true);
         }
 
 
@@ -56,7 +54,8 @@ namespace Rattle.Infrastructure
                 }
             });
 
-            m_publisher.Publish(EXCHANGE_NAME, service, command, commandId, responseQueue);
+            var commandTopic = $"command.{service}.{command.GetType().Name}";
+            m_publisher.Publish(EXCHANGE_NAME, commandTopic, command, commandId, responseQueue);
 
             return taskCompletionSource.Task;
         }

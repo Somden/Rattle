@@ -40,12 +40,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Aggregates\BaseAggregate.cs" />
     <Compile Include="Bus\ICommandBus.cs" />
     <Compile Include="Bus\IConsumer.cs" />
     <Compile Include="Bus\IEventBus.cs" />
     <Compile Include="Bus\IPublisher.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandHandler.cs" />
+    <Compile Include="Data\AggregateRepository.cs" />
+    <Compile Include="Data\IAggregateRepository.cs" />
     <Compile Include="Domain\DomainEvent.cs" />
     <Compile Include="Domain\Entity.cs" />
     <Compile Include="Domain\EventSourcedAggregate.cs" />
@@ -63,7 +66,10 @@
     <Compile Include="Messages\IMessage.cs" />
     <Compile Include="Messages\IMessageSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Requests\IRequest.cs" />
+    <Compile Include="Requests\IRequestHandler.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
