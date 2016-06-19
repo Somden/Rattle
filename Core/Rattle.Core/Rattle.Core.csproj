@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2AE16C0E-4B9D-4437-9F54-FD89DE064344}</ProjectGuid>
+    <ProjectGuid>{C6C26A3A-7E91-44ED-AAC3-1080236543CC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Rattle.Core</RootNamespace>
@@ -46,11 +46,17 @@
     <Compile Include="Bus\IPublisher.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandHandler.cs" />
+    <Compile Include="Domain\DomainEvent.cs" />
+    <Compile Include="Domain\Entity.cs" />
+    <Compile Include="Domain\EventSourcedAggregate.cs" />
+    <Compile Include="Domain\EventStream.cs" />
+    <Compile Include="Domain\EventWrapper.cs" />
     <Compile Include="Domain\Exception\AggregateNotFoundException.cs" />
     <Compile Include="Domain\Exception\AggregateOrEventMissingIdException.cs" />
     <Compile Include="Domain\Exception\ConcurrencyException.cs" />
     <Compile Include="Domain\Exception\EventsOutOfOrderException.cs" />
     <Compile Include="Domain\Exception\MissingParameterLessConstructorException.cs" />
+    <Compile Include="Domain\IEventStore.cs" />
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Events\IEventHandler.cs" />
     <Compile Include="Messages\IHandlerInvoker.cs" />

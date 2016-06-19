@@ -4,17 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{58FE4021-90E3-4399-BC1B-B05C915C0509}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{3DFDBB21-631F-40EE-862D-EB34CFCB67EC}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Rattle.Server.Host</RootNamespace>
-    <AssemblyName>Rattle.Server.Host</AssemblyName>
+    <RootNamespace>Rattle.Infrastructure</RootNamespace>
+    <AssemblyName>Rattle.Infrastructure</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,8 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="RabbitMQ.Client, Version=3.6.2.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
-      <HintPath>..\packages\RabbitMQ.Client.3.6.2\lib\net45\RabbitMQ.Client.dll</HintPath>
+      <HintPath>..\..\packages\RabbitMQ.Client.3.6.2\lib\net45\RabbitMQ.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -47,22 +48,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="CommandBus.cs" />
+    <Compile Include="Consumer.cs" />
+    <Compile Include="EventBus.cs" />
+    <Compile Include="HandlerInvoker.cs" />
+    <Compile Include="MessageSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Publisher.cs" />
+    <Compile Include="Services\Service.cs" />
+    <Compile Include="Services\TopologyStrategies\ITopology.cs" />
+    <Compile Include="Services\TopologyStrategies\QueuePerBusTopology.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Rattle.Core\Rattle.Core.csproj">
-      <Project>{c6c26a3a-7e91-44ed-aac3-1080236543cc}</Project>
+    <ProjectReference Include="..\..\Core\Rattle.Core\Rattle.Core.csproj">
+      <Project>{2ae16c0e-4b9d-4437-9f54-fd89de064344}</Project>
       <Name>Rattle.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Infrastructure\Rattle.Infrastructure\Rattle.Infrastructure.csproj">
-      <Project>{628c0a57-668e-46d4-87f2-99cd90a5bcf6}</Project>
-      <Name>Rattle.Infrastructure</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
