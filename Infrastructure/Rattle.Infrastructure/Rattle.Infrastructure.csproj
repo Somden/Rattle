@@ -62,7 +62,11 @@
     <Compile Include="CommandBus.cs" />
     <Compile Include="Consumer.cs" />
     <Compile Include="EventBus.cs" />
-    <Compile Include="EventStore.cs" />
+    <Compile Include="EventStore\EventStore.cs" />
+    <Compile Include="EventStore\EventStream.cs" />
+    <Compile Include="EventStore\EventWrapper.cs" />
+    <Compile Include="EventStore\Extensions.cs" />
+    <Compile Include="EventStore\SnapshotWrapper.cs" />
     <Compile Include="HandlerInvoker.cs" />
     <Compile Include="MessageSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -90,6 +94,7 @@
   <ItemGroup>
     <Analyzer Include="..\..\packages\AWSSDK.DynamoDBv2.3.1.5.0\analyzers\dotnet\cs\AWSSDK.DynamoDBv2.CodeAnalysis.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
