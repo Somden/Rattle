@@ -8,7 +8,7 @@ namespace Rattle.Core.Aggregates
 {
     public abstract class Aggregate
     {
-        private readonly List<IEvent> m_changes = new List<IEvent>();
+        private readonly List<IAggregateEvent> m_changes = new List<IAggregateEvent>();
 
 
 
@@ -28,12 +28,12 @@ namespace Rattle.Core.Aggregates
         
 
 
-        public List<IEvent> GetUncommitedChanges()
+        public List<IAggregateEvent> GetUncommitedChanges()
         {
             return m_changes.ToList();
         }
 
-        public void LoadFromHistory(IEnumerable<IEvent> history)
+        public void LoadFromHistory(IEnumerable<IAggregateEvent> history)
         {
             foreach (var e in history)
             {
@@ -53,12 +53,12 @@ namespace Rattle.Core.Aggregates
 
 
 
-        protected void ApplyEvent(IEvent @event)
+        protected void ApplyEvent(IAggregateEvent @event)
         {
             ApplyEvent(@event, true);
         }
 
-        protected void ApplyEvent(IEvent @event, bool isNew)
+        protected void ApplyEvent(IAggregateEvent @event, bool isNew)
         {
             if (@event.AggregateId != this.Id)
             {
@@ -76,7 +76,7 @@ namespace Rattle.Core.Aggregates
             }
         }
 
-        protected void CallApplyMethod(IEvent @event)
+        protected void CallApplyMethod(IAggregateEvent @event)
         {
             ((dynamic)this).Apply((dynamic)@event);
         }

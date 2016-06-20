@@ -2,13 +2,21 @@
 using System.Collections.Generic;
 using Rattle.Core.Aggregates;
 using System.Linq;
+using Rattle.Core.Domain;
 
 namespace Rattle.Core.Data
 {
-    public class AggregateRepository<TAggregate> : IAggregateRepository<TAggregate>
+    public abstract class AggregateRepository<TAggregate> : IAggregateRepository<TAggregate>
         where TAggregate : Aggregate
     {
         private readonly Dictionary<Guid, TAggregate> m_aggregates = new Dictionary<Guid, TAggregate>();
+        private readonly IEventStore m_eventStore;
+
+
+        public AggregateRepository(IEventStore eventStore)
+        {
+            m_eventStore = eventStore;
+        }
 
 
 
@@ -26,7 +34,6 @@ namespace Rattle.Core.Data
         {
             if (aggregate.IsDirty)
             {
-                //TODO: Save with EventStore
                 m_aggregates[aggregate.Id] = aggregate;
             }
         }

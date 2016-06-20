@@ -24,8 +24,19 @@ namespace Rattle.Infrastructure
         
         public void SendEvent<T>(T @event) where T : IEvent
         {
-            var topic = $"event.{@event.AggregateType}.{@event.GetType().Name}";
+            var topic = this.GetTopic(@event);
             m_publisher.Publish(EXCHANGE_NAME, topic, @event);
+        }
+
+        private string GetTopic(IEvent @event)
+        {
+            if(@event is IAggregateEvent)
+            {
+                var aggregateEvent = @event as IAggregateEvent;
+                return $"event.{aggregateEvent.AggregateType}.{aggregateEvent.GetType().Name}";
+            }
+
+            return $"event.{@event.GetType().Name}";
         }
     }
 }

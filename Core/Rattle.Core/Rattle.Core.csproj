@@ -60,6 +60,7 @@
     <Compile Include="Domain\Exception\EventsOutOfOrderException.cs" />
     <Compile Include="Domain\Exception\MissingParameterLessConstructorException.cs" />
     <Compile Include="Domain\IEventStore.cs" />
+    <Compile Include="Events\IAggregateEvent.cs" />
     <Compile Include="Events\IEvent.cs" />
     <Compile Include="Events\IEventHandler.cs" />
     <Compile Include="Messages\IHandlerInvoker.cs" />

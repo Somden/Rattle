@@ -36,7 +36,6 @@ namespace Rattle.Infrastructure.Services.TopologyStrategies
         public ITopology Initialize()
         {
             var eventTypes = this.GetImplementedHandlersTypes(typeof(IEventHandler<>));
-
             var commandTypes = this.GetImplementedHandlersTypes(typeof(ICommandHandler<>));
 
             foreach (var eventType in eventTypes)
@@ -44,7 +43,7 @@ namespace Rattle.Infrastructure.Services.TopologyStrategies
                 var queueName = $"{m_serviceName}.events.{eventType.Name}";
 
                 m_channel.QueueDeclare(queueName, true, false, false, null);
-                m_channel.QueueBind(queueName, EventBus.EXCHANGE_NAME, $"event.*.{eventType.Name}");
+                m_channel.QueueBind(queueName, EventBus.EXCHANGE_NAME, $"event.#.{eventType.Name}");
 
                 m_eventQueues.Add(queueName);
             }
