@@ -19,15 +19,33 @@ namespace Rattle.Infrastructure.Repositories
 
             var fromEventNumber = 0;
             var toEventNumber = int.MaxValue;
-            var stream = _eventStore.GetStream(streamName, fromEventNumber, toEventNumber);
 
-            UserAccount userAccount = new UserAccount();
-
-            foreach (var @event in stream)
+            var snapshot = _eventStore.GetLatestSnapshot<UserAccountSnapshot>(streamName);
+            if (snapshot != null)
             {
-                userAccount.Apply(@event);
+                fromEventNumber = snapshot.Version + 1; // load only events after snapshot
             }
 
+            var stream = _eventStore.GetStream(streamName, fromEventNumber, toEventNumber);
+
+            UserAccount userAccount = null;
+            if (snapshot != null)
+            {
+                userAccount = new UserAccount(snapshot);
+            }
+            else
+            {
+                userAccount = new UserAccount();
+            }
+
+            if (stream != null)
+            {
+                foreach (var @event in stream)
+                {
+                    userAccount.Apply(@event);
+                }
+            }
+            userAccount.MarkChangesAsCommited();
             return userAccount;
         }
 
@@ -45,7 +63,7 @@ namespace Rattle.Infrastructure.Repositories
             var expectedVersion = GetExpectedVersion(userAccount.InitialVersion);
             _eventStore.AppendEventsToStream(streamName, userAccount.Changes, expectedVersion);
         }
-
+        
         private int? GetExpectedVersion(int expectedVersion)
         {
             if (expectedVersion == 0)

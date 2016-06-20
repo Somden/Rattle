@@ -1,4 +1,6 @@
-namespace Rattle.Core.Domain
+using Rattle.Core.Domain;
+
+namespace Rattle.Infrastructure.EventStore
 {
     public class EventStream
     {

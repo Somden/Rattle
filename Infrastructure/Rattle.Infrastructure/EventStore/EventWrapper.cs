@@ -1,4 +1,6 @@
-namespace Rattle.Core.Domain
+using Rattle.Core.Domain;
+
+namespace Rattle.Infrastructure.EventStore
 {
     public class EventWrapper
     {
@@ -15,4 +17,6 @@ namespace Rattle.Core.Domain
             Id = $"{streamStateId}-{EventNumber}";
         }
     }
+
+    // used for persistence
 }

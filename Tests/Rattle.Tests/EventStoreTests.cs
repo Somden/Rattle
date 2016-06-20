@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2.Model;
 using NUnit.Framework;
 using Rattle.Domain.UserAccounts;
 using Rattle.Infrastructure;
+using Rattle.Infrastructure.EventStore;
 using Rattle.Infrastructure.Repositories;
 
 namespace Rattle.Tests
@@ -13,7 +14,9 @@ namespace Rattle.Tests
     public class EventStoreTests
     {
         private AmazonDynamoDBClient _amazonDynamoDbClient;
-
+        private EventStore _eventStore;
+        private UserAccountRepository _userAccountRepository;
+        
         [SetUp]
         public void SetUp()
         {
@@ -21,7 +24,7 @@ namespace Rattle.Tests
             {
                 AmazonDynamoDBConfig ddbConfig = new AmazonDynamoDBConfig();
                 ddbConfig.ServiceURL = "http://localhost:8000";
-                _amazonDynamoDbClient = new AmazonDynamoDBClient("AKIAJY7EDMWJPJZLVK4A", "D4IfaYo8efzejbwgc+Js5+QqB+VdHthbGg6sfgB2", ddbConfig);
+                _amazonDynamoDbClient = new AmazonDynamoDBClient("AKIAJY7EDMWJPJZLVK4A", "D4IfaYo8efzejbwgc+Js5+QqB+VdHthbGg6sfgB2", ddbConfig);             
             }
             catch (Exception e)
             {
@@ -29,6 +32,8 @@ namespace Rattle.Tests
             }
             
             CreateTable();
+            _eventStore = new EventStore(_amazonDynamoDbClient);
+            _userAccountRepository = new UserAccountRepository(_eventStore);
         }
 
         [TearDown]
@@ -41,15 +46,13 @@ namespace Rattle.Tests
         [Test]
         public void Should_Create_User_Accout()
         {
-            var eventStore = new EventStore(_amazonDynamoDbClient);
-            var userAccountRepository = new UserAccountRepository(eventStore);
             var id = Guid.NewGuid();
             var userAccount = new UserAccount(id);
             var userName = "ololo";
             userAccount.ChangeUserName(userName);
-            userAccountRepository.Create(userAccount);
+            _userAccountRepository.Create(userAccount);
 
-            UserAccount getUac = userAccountRepository.FindBy(id);
+            UserAccount getUac = _userAccountRepository.FindBy(id);
 
             Assert.That(getUac, Is.Not.Null);
             Assert.That(getUac.Id, Is.EqualTo(id));
@@ -60,20 +63,68 @@ namespace Rattle.Tests
         [Test]
         public void Should_Update_User_Accout()
         {
-            var eventStore = new EventStore(_amazonDynamoDbClient);
-            var userAccountRepository = new UserAccountRepository(eventStore);
             var id = Guid.NewGuid();
-            userAccountRepository.Create(new UserAccount(id));
+            _userAccountRepository.Create(new UserAccount(id));
 
-            UserAccount userAccount = userAccountRepository.FindBy(id);
+            UserAccount userAccount = _userAccountRepository.FindBy(id);
             var userName = "ololo";
             userAccount.ChangeUserName(userName);
-            userAccountRepository.Save(userAccount);
+            _userAccountRepository.Save(userAccount);
 
             Assert.That(userAccount, Is.Not.Null);
             Assert.That(userAccount.Id, Is.EqualTo(id));
             Assert.That(userAccount.UserName, Is.EqualTo(userName));
             Assert.That(userAccount.Version, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void Should_Use_Snapshot()
+        {
+            UserAccountSnapshot snapshot = null;
+            var userAccountId = Guid.NewGuid();
+            var streamName = typeof(UserAccount).ToStreamName(userAccountId);
+
+            // aggregate not exists yet
+            snapshot = _eventStore.GetLatestSnapshot<UserAccountSnapshot>(streamName);
+            Assert.That(snapshot, Is.Null);
+
+            // aggregate created but theren't any snapshots
+            var userAccount = new UserAccount(userAccountId);
+            userAccount.ChangeUserName("userName1");
+            _userAccountRepository.Create(userAccount);
+            snapshot = _eventStore.GetLatestSnapshot<UserAccountSnapshot>(streamName);
+            Assert.That(snapshot, Is.Null);
+
+            // take first snapshot
+            userAccount = _userAccountRepository.FindBy(userAccountId);
+            TaskSnapshot(userAccountId);
+            snapshot = _eventStore.GetLatestSnapshot<UserAccountSnapshot>(streamName);
+            Assert.That(snapshot.Version, Is.EqualTo(userAccount.Version));
+
+            // make change but not take snapshot
+            userAccount = _userAccountRepository.FindBy(userAccountId);
+            userAccount.ChangeUserName("userName2");
+            _userAccountRepository.Save(userAccount);
+            snapshot = _eventStore.GetLatestSnapshot<UserAccountSnapshot>(streamName);
+            Assert.That(snapshot.Version, Is.EqualTo(userAccount.Version - 1));
+            Assert.That(userAccount.UserName, Is.EqualTo("userName2"));
+            Assert.That(snapshot.UserName, Is.EqualTo("userName1"));
+
+            // change name an take snapshot
+            userAccount = _userAccountRepository.FindBy(userAccountId);
+            userAccount.ChangeUserName("userName3");
+            _userAccountRepository.Save(userAccount);
+            TaskSnapshot(userAccountId);
+            snapshot = _eventStore.GetLatestSnapshot<UserAccountSnapshot>(streamName);
+            Assert.That(snapshot.Version, Is.EqualTo(userAccount.Version));
+            Assert.That(userAccount.UserName, Is.EqualTo(snapshot.UserName));
+        }
+
+        private void TaskSnapshot(Guid userAccountId)
+        {
+            var userAccount = _userAccountRepository.FindBy(userAccountId);
+            var snapshot = userAccount.GetUserAccountSnapshot();
+            _eventStore.AddSnapshot(typeof(UserAccount).ToStreamName(userAccount.Id), snapshot);
         }
 
         private void CreateTable()
@@ -107,7 +158,7 @@ namespace Rattle.Tests
                 {
                     new AttributeDefinition
                     {
-                        AttributeName = "Id",
+                        AttributeName = "EventStreamId",
                         AttributeType = "S"
                     },
                     new AttributeDefinition
@@ -120,7 +171,7 @@ namespace Rattle.Tests
                 {
                     new KeySchemaElement
                     {
-                        AttributeName = "Id",
+                        AttributeName = "EventStreamId",
                         KeyType = "HASH"
                     },
                     new KeySchemaElement
@@ -132,17 +183,39 @@ namespace Rattle.Tests
                 ProvisionedThroughput = new ProvisionedThroughput(1, 1),
             };
 
+            CreateTableRequest createSnapshoCreateTableRequest = new CreateTableRequest
+            {
+                TableName = "SnapshotWrapper",
+                AttributeDefinitions = new List<AttributeDefinition>()
+                {
+                    new AttributeDefinition
+                    {
+                        AttributeName = "StreamName",
+                        AttributeType = "S"
+                    }
+                },
+                KeySchema = new List<KeySchemaElement>()
+                {
+                    new KeySchemaElement
+                    {
+                        AttributeName = "StreamName",
+                        KeyType = "HASH"
+                    }
+                },
+                ProvisionedThroughput = new ProvisionedThroughput(1, 1),
+            };
 
+            // SnapshotWrapper
             var createResponse1 = _amazonDynamoDbClient.CreateTable(createEventStreamTableRequest);
             var createResponse2 = _amazonDynamoDbClient.CreateTable(createEventWrapperTableRequest);
-            Console.WriteLine($"{createResponse1.TableDescription.TableName} status {createResponse1.TableDescription.TableStatus}");
-            Console.WriteLine($"{createResponse2.TableDescription.TableName} status {createResponse2.TableDescription.TableStatus}");
+            var createResponse3 = _amazonDynamoDbClient.CreateTable(createSnapshoCreateTableRequest);
         }
 
         private void DeleteTable()
         {
             _amazonDynamoDbClient.DeleteTable("EventStream");
             _amazonDynamoDbClient.DeleteTable("EventWrapper");
+            _amazonDynamoDbClient.DeleteTable("SnapshotWrapper");
         }
     }
 }

@@ -52,8 +52,6 @@
     <Compile Include="Domain\DomainEvent.cs" />
     <Compile Include="Domain\Entity.cs" />
     <Compile Include="Domain\EventSourcedAggregate.cs" />
-    <Compile Include="Domain\EventStream.cs" />
-    <Compile Include="Domain\EventWrapper.cs" />
     <Compile Include="Domain\Exception\AggregateNotFoundException.cs" />
     <Compile Include="Domain\Exception\AggregateOrEventMissingIdException.cs" />
     <Compile Include="Domain\Exception\ConcurrencyException.cs" />

@@ -20,8 +20,10 @@ namespace Rattle.Domain.UserAccounts
 
         public UserAccount(UserAccountSnapshot snapshot)
         {
+            Id = snapshot.Id;
             Version = snapshot.Version;
             InitialVersion = snapshot.Version;
+            UserName = snapshot.UserName;
         }
 
         public override void Apply(DomainEvent @event)
@@ -32,12 +34,18 @@ namespace Rattle.Domain.UserAccounts
 
         public UserAccountSnapshot GetUserAccountSnapshot()
         {
-            return new UserAccountSnapshot {Version = Version };
+            return new UserAccountSnapshot {Version = Version, UserName = UserName, Id = Id};
         }
 
         public void ChangeUserName(string userName)
         {
             Causes(new UserNameChanged(Id) {UserName = userName});
+        }
+
+        public void MarkChangesAsCommited()
+        {
+            Changes.Clear();
+            InitialVersion = Version;
         }
 
         private void Causes(DomainEvent @event)
