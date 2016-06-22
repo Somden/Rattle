@@ -6,6 +6,8 @@ namespace Rattle.Core.Data
 {
     public interface IAggregateRepository<TAggregate> where TAggregate : Aggregate
     {
+        void Create(TAggregate aggregate);
+
         List<TAggregate> Get();
 
         TAggregate Get(Guid aggregateId);

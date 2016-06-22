@@ -1,4 +1,5 @@
 using Rattle.Core.Domain;
+using Rattle.Core.Events;
 
 namespace Rattle.Infrastructure.EventStore
 {
@@ -15,7 +16,7 @@ namespace Rattle.Infrastructure.EventStore
             Version = 0;
         }
 
-        public EventWrapper RegisterEvent(DomainEvent @event)
+        public EventWrapper RegisterEvent(IAggregateEvent @event)
         {
             Version++;
 

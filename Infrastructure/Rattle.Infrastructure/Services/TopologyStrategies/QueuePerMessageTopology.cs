@@ -43,7 +43,7 @@ namespace Rattle.Infrastructure.Services.TopologyStrategies
                 var queueName = $"{m_serviceName}.events.{eventType.Name}";
 
                 m_channel.QueueDeclare(queueName, true, false, false, null);
-                m_channel.QueueBind(queueName, EventBus.EXCHANGE_NAME, $"event.#.{eventType.Name}");
+                m_channel.QueueBind(queueName, EventBus.EXCHANGE_NAME, $"event.{eventType.Name}");
 
                 m_eventQueues.Add(queueName);
             }

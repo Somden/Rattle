@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Aggregates\BaseAggregate.cs" />
+    <Compile Include="Aggregates\Aggregate.cs" />
     <Compile Include="Bus\ICommandBus.cs" />
     <Compile Include="Bus\IConsumer.cs" />
     <Compile Include="Bus\IEventBus.cs" />

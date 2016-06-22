@@ -4,6 +4,7 @@ using System.Linq;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Rattle.Core.Domain;
+using Rattle.Core.Events;
 
 namespace Rattle.Infrastructure.EventStore
 {
@@ -23,7 +24,8 @@ namespace Rattle.Infrastructure.EventStore
             _snapshotWrapperTable = Table.LoadTable(_amazonDynamoDb, "SnapshotWrapper");
         }
 
-        public void CreateNewStream(string streamName, IEnumerable<DomainEvent> domainEvents)
+        //TODO: Merge with AppendEventsToStream
+        public void CreateNewStream(string streamName, IEnumerable<IAggregateEvent> domainEvents)
         {
             var eventStream = new EventStream(streamName);
             _eventStreamTable.PutItem(eventStream.ToDocument());
@@ -31,13 +33,15 @@ namespace Rattle.Infrastructure.EventStore
             AppendEventsToStream(streamName, domainEvents);
         }
 
-        public void AppendEventsToStream(string streamName, IEnumerable<DomainEvent> domainEvents, int? expectedVersion = null)
+        public void AppendEventsToStream(string streamName, IEnumerable<IAggregateEvent> domainEvents)
         {
             EventStream stream = _eventStreamTable.GetItem(streamName).ToEventStream();
 
-            if (expectedVersion != null)
+            var minEventsVersion = domainEvents.Min(e => e.Version);
+            if (minEventsVersion <= stream.Version)
             {
-                CheckForConcurrencyError(expectedVersion, stream);
+                var error = $"Expected: {stream.Version + 1}. Found: {minEventsVersion}";
+                throw new OptimsticConcurrencyException(error);
             }
 
             foreach (var @event in domainEvents)
@@ -48,7 +52,7 @@ namespace Rattle.Infrastructure.EventStore
             _eventStreamTable.PutItem(stream.ToDocument());
         }
 
-        public IEnumerable<DomainEvent> GetStream(string streamName, int fromVersion, int toVersion)
+        public IEnumerable<IAggregateEvent> GetStream(string streamName, int fromVersion, int toVersion)
         {
             var filter = new QueryFilter("EventStreamId", QueryOperator.Equal, streamName);
             filter.AddCondition("EventNumber", QueryOperator.Between, fromVersion, toVersion);
@@ -60,7 +64,7 @@ namespace Rattle.Infrastructure.EventStore
 
             if (!eventWrappers.Any()) return null;
 
-            var events = new List<DomainEvent>();
+            var events = new List<IAggregateEvent>();
 
             foreach (var @event in eventWrappers)
             {
@@ -93,16 +97,6 @@ namespace Rattle.Infrastructure.EventStore
                 .FirstOrDefault();
 
             return (T) latestSnapshot?.Snapshot;
-        }
-
-        private static void CheckForConcurrencyError(int? expectedVersion, EventStream stream)
-        {
-            var lastUpdatedVersion = stream.Version;
-            if (lastUpdatedVersion != expectedVersion)
-            {
-                var error = $"Expected: {expectedVersion}. Found: {lastUpdatedVersion}";
-                throw new OptimsticConcurrencyException(error);
-            }
         }
     }
 

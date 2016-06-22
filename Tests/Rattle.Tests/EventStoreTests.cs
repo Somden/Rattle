@@ -52,7 +52,7 @@ namespace Rattle.Tests
             userAccount.ChangeUserName(userName);
             _userAccountRepository.Create(userAccount);
 
-            UserAccount getUac = _userAccountRepository.FindBy(id);
+            UserAccount getUac = _userAccountRepository.Get(id);
 
             Assert.That(getUac, Is.Not.Null);
             Assert.That(getUac.Id, Is.EqualTo(id));
@@ -66,7 +66,7 @@ namespace Rattle.Tests
             var id = Guid.NewGuid();
             _userAccountRepository.Create(new UserAccount(id));
 
-            UserAccount userAccount = _userAccountRepository.FindBy(id);
+            UserAccount userAccount = _userAccountRepository.Get(id);
             var userName = "ololo";
             userAccount.ChangeUserName(userName);
             _userAccountRepository.Save(userAccount);
@@ -96,13 +96,13 @@ namespace Rattle.Tests
             Assert.That(snapshot, Is.Null);
 
             // take first snapshot
-            userAccount = _userAccountRepository.FindBy(userAccountId);
+            userAccount = _userAccountRepository.Get(userAccountId);
             TaskSnapshot(userAccountId);
             snapshot = _eventStore.GetLatestSnapshot<UserAccountSnapshot>(streamName);
             Assert.That(snapshot.Version, Is.EqualTo(userAccount.Version));
 
             // make change but not take snapshot
-            userAccount = _userAccountRepository.FindBy(userAccountId);
+            userAccount = _userAccountRepository.Get(userAccountId);
             userAccount.ChangeUserName("userName2");
             _userAccountRepository.Save(userAccount);
             snapshot = _eventStore.GetLatestSnapshot<UserAccountSnapshot>(streamName);
@@ -111,7 +111,7 @@ namespace Rattle.Tests
             Assert.That(snapshot.UserName, Is.EqualTo("userName1"));
 
             // change name an take snapshot
-            userAccount = _userAccountRepository.FindBy(userAccountId);
+            userAccount = _userAccountRepository.Get(userAccountId);
             userAccount.ChangeUserName("userName3");
             _userAccountRepository.Save(userAccount);
             TaskSnapshot(userAccountId);
@@ -122,7 +122,7 @@ namespace Rattle.Tests
 
         private void TaskSnapshot(Guid userAccountId)
         {
-            var userAccount = _userAccountRepository.FindBy(userAccountId);
+            var userAccount = _userAccountRepository.Get(userAccountId);
             var snapshot = userAccount.GetUserAccountSnapshot();
             _eventStore.AddSnapshot(typeof(UserAccount).ToStreamName(userAccount.Id), snapshot);
         }

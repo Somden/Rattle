@@ -1,9 +1,10 @@
 ﻿using System;
 using Rattle.Core.Domain;
+using Rattle.Core.Aggregates;
 
 namespace Rattle.Domain.UserAccounts
 {
-    public class UserAccount : EventSourcedAggregate
+    public class UserAccount : Aggregate
     {
         public int InitialVersion { get; private set; }
 
@@ -15,7 +16,7 @@ namespace Rattle.Domain.UserAccounts
 
         public UserAccount(Guid id)
         {
-            Causes(new AccountCreated(id));
+            ApplyEvent(new AccountCreated(id, this.Version + 1));
         }
 
         public UserAccount(UserAccountSnapshot snapshot)
@@ -26,12 +27,6 @@ namespace Rattle.Domain.UserAccounts
             UserName = snapshot.UserName;
         }
 
-        public override void Apply(DomainEvent @event)
-        {
-            When((dynamic)@event);
-            Version = Version + 1;
-        }
-
         public UserAccountSnapshot GetUserAccountSnapshot()
         {
             return new UserAccountSnapshot {Version = Version, UserName = UserName, Id = Id};
@@ -39,29 +34,8 @@ namespace Rattle.Domain.UserAccounts
 
         public void ChangeUserName(string userName)
         {
-            Causes(new UserNameChanged(Id) {UserName = userName});
+            ApplyEvent(new UserNameChanged(Id, this.Version + 1) {UserName = userName});
         }
-
-        public void MarkChangesAsCommited()
-        {
-            Changes.Clear();
-            InitialVersion = Version;
-        }
-
-        private void Causes(DomainEvent @event)
-        {
-            Changes.Add(@event);
-            Apply(@event);
-        }
-
-        private void When(AccountCreated accountCreated)
-        {
-            Id = accountCreated.Id;
-        }
-
-        private void When(UserNameChanged userNameChanged)
-        {
-            UserName = userNameChanged.UserName;
-        }
+        
     }
 }

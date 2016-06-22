@@ -65,10 +65,10 @@ namespace Rattle.Core.Aggregates
                 return;
             }
 
-            this.CallApplyMethod(@event);
-
             this.Id = @event.AggregateId;
             this.Version = @event.Version;
+
+            this.CallApplyMethod(@event);
 
             if (isNew)
             {

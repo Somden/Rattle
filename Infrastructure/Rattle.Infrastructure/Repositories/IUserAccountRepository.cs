@@ -5,7 +5,7 @@ namespace Rattle.Infrastructure.Repositories
 {
     public interface IUserAccountRepository
     {
-        UserAccount FindBy(Guid id);
+        UserAccount Get(Guid aggregateId);
 
         void Create(UserAccount userAccount);
 

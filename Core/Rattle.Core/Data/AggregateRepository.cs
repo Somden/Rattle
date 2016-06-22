@@ -20,6 +20,17 @@ namespace Rattle.Core.Data
 
 
 
+        public void Create(TAggregate aggregate)
+        {
+            var changes = aggregate.GetUncommitedChanges();
+
+            var streamName = StreamNameFor(aggregate);
+
+            m_eventStore.CreateNewStream(streamName, changes);
+
+            aggregate.MarkChangesAsCommited();
+        }
+
         public List<TAggregate> Get()
         {
             return m_aggregates.Values.ToList();
@@ -34,8 +45,30 @@ namespace Rattle.Core.Data
         {
             if (aggregate.IsDirty)
             {
+                this.SaveAggregateEvents(aggregate);
+
                 m_aggregates[aggregate.Id] = aggregate;
             }
+        }
+
+
+
+
+        private void SaveAggregateEvents(TAggregate aggregate)
+        {
+            var changes = aggregate.GetUncommitedChanges();
+
+            var streamName = StreamNameFor(aggregate);
+            
+            m_eventStore.AppendEventsToStream(streamName, changes);
+
+            aggregate.MarkChangesAsCommited();
+        }
+
+        private string StreamNameFor(TAggregate aggregate)
+        {
+            // Stream per-aggregate: {AggregateType}-{AggregateId}
+            return $"{typeof(TAggregate).Name}-{aggregate.Id}";
         }
     }
 }

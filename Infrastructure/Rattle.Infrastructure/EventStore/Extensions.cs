@@ -4,6 +4,7 @@ using System.Linq;
 using Amazon.DynamoDBv2.DocumentModel;
 using Newtonsoft.Json;
 using Rattle.Core.Domain;
+using Rattle.Core.Events;
 
 namespace Rattle.Infrastructure.EventStore
 {
@@ -79,7 +80,7 @@ namespace Rattle.Infrastructure.EventStore
             var deserializeObject = JsonConvert.DeserializeObject(eventJson, Type.GetType($"{eventType}, Rattle.Domain"));
             return
                 new EventWrapper(
-                    (DomainEvent)
+                    (IAggregateEvent)
                         deserializeObject,
                     eventVersion, eventStreamId);
         }

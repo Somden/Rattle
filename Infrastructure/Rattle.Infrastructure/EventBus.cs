@@ -33,7 +33,7 @@ namespace Rattle.Infrastructure
             if(@event is IAggregateEvent)
             {
                 var aggregateEvent = @event as IAggregateEvent;
-                return $"event.{aggregateEvent.AggregateType}.{aggregateEvent.GetType().Name}";
+                return $"event.{aggregateEvent.GetType().Name}";
             }
 
             return $"event.{@event.GetType().Name}";
