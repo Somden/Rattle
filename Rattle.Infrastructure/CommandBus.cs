@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Rattle.Core.Bus;
 using Rattle.Core.Commands;
 using Rattle.Core.Messages;
+using Rattle.Infrastructure.Exceptions;
 
 namespace Rattle.Infrastructure
 {
@@ -30,11 +31,10 @@ namespace Rattle.Infrastructure
 
 
 
-        public Task<TResponse> Send<TCommand, TResponse>(string service, TCommand command)
+        public Task<IMessage> Send<TCommand>(string service, TCommand command)
             where TCommand : ICommand
-            where TResponse : IMessage
         {
-            var taskCompletionSource = new TaskCompletionSource<TResponse>();
+            var taskCompletionSource = new TaskCompletionSource<IMessage>();
 
             var commandId = Guid.NewGuid().ToString();
 
@@ -43,14 +43,15 @@ namespace Rattle.Infrastructure
             m_consumer.Consume(responseQueue, true, true, deliveryArgs =>
             {
                 if (deliveryArgs.BasicProperties != null &&
-                    deliveryArgs.BasicProperties.CorrelationId == commandId)
+                    deliveryArgs.BasicProperties.CorrelationId == commandId &&
+                    !string.IsNullOrEmpty(deliveryArgs.BasicProperties.Type))
                 {
-                    var response = m_serializer.Deserialize<TResponse>(deliveryArgs.Body);
+                    var response = m_serializer.Deserialize(deliveryArgs.BasicProperties.Type, deliveryArgs.Body);
                     taskCompletionSource.SetResult(response);
                 }
                 else
                 {
-                    Debug.Fail("Invalid data in delivery args");
+                    taskCompletionSource.SetException(new DeliveryFailedException(deliveryArgs));
                 }
             });
 

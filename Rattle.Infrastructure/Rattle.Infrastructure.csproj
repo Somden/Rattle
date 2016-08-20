@@ -60,6 +60,7 @@
     <Compile Include="EventStore\EventWrapper.cs" />
     <Compile Include="EventStore\Extensions.cs" />
     <Compile Include="EventStore\SnapshotWrapper.cs" />
+    <Compile Include="Exceptions\DeliveryFailedException.cs" />
     <Compile Include="HandlerInvoker.cs" />
     <Compile Include="MessageSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -76,10 +77,6 @@
     <ProjectReference Include="..\Rattle.Core\Rattle.Core.csproj">
       <Project>{C6C26A3A-7E91-44ED-AAC3-1080236543CC}</Project>
       <Name>Rattle.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Rattle.Domain\Rattle.Domain.csproj">
-      <Project>{f7e3d441-b16a-43a9-b356-942cf7f09e5b}</Project>
-      <Name>Rattle.Domain</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

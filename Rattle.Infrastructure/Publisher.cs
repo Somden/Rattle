@@ -45,7 +45,7 @@ namespace Rattle.Infrastructure
 
         private void Publish<T>(string exchange, string topic, T message, IBasicProperties properties) where T : IMessage
         {
-            properties.Type = typeof(T).FullName;
+            properties.Type = message.GetType().FullName;
             var messageBuffer = m_serializer.Serialize(message);
             m_channel.BasicPublish(exchange, topic, properties, messageBuffer);
         }

@@ -81,9 +81,11 @@ namespace Rattle.Infrastructure.Services
 
 
 
-        protected abstract Assembly[] ContractsAssemblies { get; }
+        public abstract Assembly[] ContractsAssemblies { get; }
 
-        protected abstract Assembly[] HandlersAssemblies { get; }
+        public abstract Assembly[] HandlersAssemblies { get; }
+
+
 
         protected abstract void RegisterDependencies(ContainerBuilder containerBuilder);
 

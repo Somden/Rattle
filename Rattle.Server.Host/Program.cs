@@ -1,22 +1,13 @@
 ﻿using RabbitMQ.Client;
 using Rattle.Core.Bus;
-using Rattle.Core.Commands;
 using Rattle.Infrastructure;
 using System;
-using System.CodeDom;
-using Rattle.Core.Messages;
-using Rattle.Infrastructure.Services;
 using Rattle.Infrastructure.Services.TopologyStrategies;
-using Rattle.Core.Events;
-using Autofac;
-using System.Reflection;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Rattle.Domain;
 using Rattle.UserManagement;
 using Rattle.UserManagement.Contracts.Commands;
 using Rattle.UserManagement.Contracts.DTO;
-using Rattle.UserManagement.Handlers.Commands;
 
 namespace Rattle.Server.Host.Temp
 {
@@ -55,13 +46,15 @@ namespace Rattle.Server.Host.Temp
 
             var channel = connection.CreateModel();
 
+            var userManagementService = new UserManagementService(Services.UserManagement);
+
             var serializer = new MessageSerializer();
+            serializer.KnownAssemblies.AddRange(userManagementService.ContractsAssemblies);
             var publisher = new Publisher(channel, serializer);
             var consumer = new Consumer(channel, serializer);
             m_commandBus = new CommandBus(channel, publisher, consumer, serializer);
             m_eventBus = new EventBus(channel, publisher);
 
-            var userManagementService = new UserManagementService(Services.UserManagement);
             return userManagementService.Start<QueuePerBusTopology>(connection);
         }
 
@@ -70,8 +63,15 @@ namespace Rattle.Server.Host.Temp
             int i = 0;
             while (i < 5)
             {
-                var response = await m_commandBus.Send<RegisterUserCommand, UserDTO>(Services.UserManagement, new RegisterUserCommand("User1", "123"));
-                Console.WriteLine($"User {response.Username} was successfully created");
+                var response = await m_commandBus.Send(Services.UserManagement, new RegisterUserCommand("User1", "123")) as UserDTO;
+                if (response != null)
+                {
+                    Console.WriteLine($"User {response.Username} was successfully created");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to create user");
+                }
                 i++;
             }
         }

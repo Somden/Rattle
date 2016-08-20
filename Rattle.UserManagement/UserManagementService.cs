@@ -15,8 +15,8 @@ namespace Rattle.UserManagement
 
 
 
-        protected override Assembly[] ContractsAssemblies => new[] {typeof(UserDTO).Assembly};
-        protected override Assembly[] HandlersAssemblies => new[] { typeof(RegisterUserCommandHandler).Assembly };
+        public override Assembly[] ContractsAssemblies => new[] {typeof(UserDTO).Assembly};
+        public override Assembly[] HandlersAssemblies => new[] { typeof(RegisterUserCommandHandler).Assembly };
 
 
         protected override void RegisterDependencies(ContainerBuilder containerBuilder)
